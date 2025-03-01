@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import express, { Request, Response } from 'express';
-import { routers } from './apps/routes/auth';
+import { routers } from './apps/routes/users.route';
 
 
 dotenv.config();
