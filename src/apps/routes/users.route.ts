@@ -15,3 +15,4 @@ router.post('/register', usersController.registerUser);
 export const routers = (app : Router) => {
     app.use('/api', router)
 }
+export default router;
