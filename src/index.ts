@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 // import { routers } from './apps/routes/users.route';
 import usersRouter from "./apps/routes/users.route";
 import productsRouter from "./apps/routes/products.route";
+import vipLevelsRouter from "./apps/routes/vip_levels.route";
 
 
 dotenv.config();
@@ -23,6 +24,7 @@ app.use(express.json());
 // routers(app);
 app.use("/api", usersRouter);
 app.use("/api", productsRouter);
+app.use("/api", vipLevelsRouter);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello, Backend is available');
