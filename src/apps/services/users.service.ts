@@ -28,6 +28,10 @@ class UsersService{
         return await usersModel.getAllUsers();
     }
 
+    async getUserById(id: number) {
+        return await usersModel.findById(id);
+    }
+
     async createUser(newUser: Partial<User>): Promise<number> {
         return await usersModel.createUser(newUser);
     }
