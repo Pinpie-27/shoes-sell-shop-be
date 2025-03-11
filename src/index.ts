@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 import express, { Request, Response } from 'express';
-import { routers } from './apps/routes/users.route';
+// import { routers } from './apps/routes/users.route';
+import usersRouter from "./apps/routes/users.route";
+import productsRouter from "./apps/routes/products.route";
 
 
 dotenv.config();
@@ -18,7 +20,9 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use(express.json());
-routers(app);
+// routers(app);
+app.use("/api", usersRouter);
+app.use("/api", productsRouter);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello, Backend is available');
