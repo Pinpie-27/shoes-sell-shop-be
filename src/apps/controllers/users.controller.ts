@@ -35,6 +35,24 @@ class UsersController {
         res.status(200).json(users);
     }
 
+    // GET USER BY ID
+    async getUserById(req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+            const success = await usersService.getUserById(Number(id));
+
+            if (success) {
+                const { password, ...userWithoutPassword } = success;
+                res.status(200).json(userWithoutPassword);
+            } else {
+                res.status(400).json({ message: `User with id ${id} not found` });
+            }
+        } catch (err) {
+            res.status(500).json({ message: "Internal Server Error", error: err });
+        }
+    }
+
+
     // Register
     async registerUser(req:Request, res: Response){
         try{

@@ -19,28 +19,23 @@ export interface User {
         return users[0] 
     }
 
-    // async findByUserName(username: string) {
-    //     const query = `SELECT * FROM users WHERE username = ? LIMIT 1`;
-    //     const [rows]: any = await db.execute(query, [username]);
-    //     return rows.length > 0 ? rows[0] : null;
-    // }
-    // users.model.ts
-async findByUserName(username: string) {
-    if (!username) {
-        throw new Error("Username must be provided.");
+    async findByUserName(username: string) {
+        if (!username) {
+            throw new Error("Username must be provided.");
+        }
+
+        const query = `SELECT * FROM users WHERE username = ? LIMIT 1`;
+        const [rows]: any = await db.execute(query, [username]);
+
+        return rows.length > 0 ? rows[0] : null;
     }
-
-    const query = `SELECT * FROM users WHERE username = ? LIMIT 1`;
-    const [rows]: any = await db.execute(query, [username]);
-
-    return rows.length > 0 ? rows[0] : null;
-}
 
 
     async getAllUsers() {
         const [users] = await db.query<User[] & RowDataPacket[]>('SELECT * FROM users');
         return users
     }
+    
     async createUser(newUser: Partial<User>): Promise<number> {
         const { username, email, password, phone, address, vip_level_id, role } = newUser;
     
