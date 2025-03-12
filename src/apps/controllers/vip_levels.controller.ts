@@ -5,9 +5,9 @@ class VipLevelsController{
     async getVipLevelById(req: Request, res: Response){
             try{
                 const {id} = req.params;
-                const success = await vipLevelsService.getVipLevelById(Number(id));
-                if(success){
-                    res.status(200).json(success);
+                const result = await vipLevelsService.getVipLevelById(Number(id));
+                if(result){
+                    res.status(200).json(result);
                 }else{
                     res.status(404).json({message: "Vip level not found"});
                 }
@@ -17,8 +17,8 @@ class VipLevelsController{
     }
     async getAllVipLevels(req: Request, res: Response){
         try{
-            const success = await vipLevelsService.getAllVipLevels();
-            res.status(200).json(success);
+            const result = await vipLevelsService.getAllVipLevels();
+            res.status(200).json(result);
         }catch(err){
             res.status(500).json({ message: "Internal Server Error", error: err });
         }
@@ -36,12 +36,17 @@ class VipLevelsController{
     //         res.status(500).json({ message: "Internal Server Error", error: err });
     //     }
     // }
-    async updateVipLevel(req: Request, res: Response){
+    async updateVipLevel(req: Request, res: Response): Promise<void>{
         try{
             const {id} = req.params;
+            const vipLevelId = await vipLevelsService.getVipLevelById(Number(id));
+            if (!vipLevelId) {
+                res.status(404).json({ message: "Vip level not found" });
+                return 
+            }
             const updatedFields = req.body;
-            const success = await vipLevelsService.updateVipLevel(Number(id), updatedFields);
-            if(success){
+            const result = await vipLevelsService.updateVipLevel(Number(id), updatedFields);
+            if(result){
                 res.status(200).json({message: "Vip level updated successfully"});
             }else{
                 res.status(400).json({message: "Failed to update vip level"});
@@ -53,8 +58,8 @@ class VipLevelsController{
     async deleteVipLevel(req: Request, res: Response){
         try{
             const {id} = req.params;
-            const success = await vipLevelsService.deleteVipLevel(Number(id));
-            if(success){
+            const result = await vipLevelsService.deleteVipLevel(Number(id));
+            if(result){
                 res.status(200).json({message: "Vip level deleted successfully"});
             }else{
                 res.status(404).json({message: "Vip level not found"});
@@ -66,8 +71,8 @@ class VipLevelsController{
     async searchVipLevels(req: Request, res: Response){
         try{
             const {keyword} = req.query;
-            const success = await vipLevelsService.searchVipLevels(String(keyword));
-            res.status(200).json(success);
+            const result = await vipLevelsService.searchVipLevels(String(keyword));
+            res.status(200).json(result);
         }catch(err){
             res.status(500).json({ message: "Internal Server Error", error: err });
         }
