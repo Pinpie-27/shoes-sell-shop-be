@@ -5,6 +5,7 @@ import usersRouter from "./apps/routes/users.route";
 import productsRouter from "./apps/routes/products.route";
 import vipLevelsRouter from "./apps/routes/vip_levels.route";
 import reviewsRouter from "./apps/routes/reviews.route";
+import categoriesRouter from "./apps/routes/categories.route";
 
 
 dotenv.config();
@@ -27,6 +28,7 @@ app.use("/api", usersRouter);
 app.use("/api", productsRouter);
 app.use("/api", vipLevelsRouter);
 app.use("/api", reviewsRouter);
+app.use("/api", categoriesRouter);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello, Backend is available');
