@@ -44,6 +44,10 @@ class UsersService{
         return await usersModel.updateUser(id, updatedFields);
     }
 
+    async searchUser(keyword: string){
+            return await usersModel.searchByUserName(keyword);
+    }
+
 }
 
 export const usersService = new UsersService();

@@ -149,6 +149,16 @@ class UsersController {
             res.status(500).json({ message: "Error updating user" });
         }
     }
+
+    async searchUsers(req: Request, res: Response){
+            try{
+                const {keyword} = req.query;
+                const result = await usersService.searchUser(String(keyword));
+                res.status(200).json(result);
+            }catch(err){
+                res.status(500).json({ message: "Internal Server Error", error: err });
+            }
+        }
     
 }
 export const usersController = new UsersController();
