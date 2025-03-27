@@ -39,10 +39,10 @@ class UsersController {
     async getUserById(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const success = await usersService.getUserById(Number(id));
+            const result = await usersService.getUserById(Number(id));
 
-            if (success) {
-                const { password, ...userWithoutPassword } = success;
+            if (result) {
+                const { password, ...userWithoutPassword } = result;
                 res.status(200).json(userWithoutPassword);
             } else {
                 res.status(400).json({ message: `User with id ${id} not found` });
@@ -109,12 +109,17 @@ class UsersController {
     }
 
     // DELETE USER
-    async deleteUser(req: Request, res: Response) {
+    async deleteUser(req: Request, res: Response): Promise<void> {
         try {
             const { id } = req.params;
-            const success = await usersService.deleteUser(Number(id));
+            const userId = await usersService.getUserById(Number(id));
+            if (!userId) {
+                res.status(404).json({ message: "User not found" });
+                return 
+            }
+            const result = await usersService.deleteUser(Number(id));
 
-            if (success) {
+            if (result) {
                 res.status(200).json({ message: `User ${id} deleted successfully` });
             } else {
                 res.status(400).json({ message: `Failed to delete user ${id}` });
@@ -124,13 +129,18 @@ class UsersController {
         }
     }
 
-    async updateUser(req: Request, res: Response) {
+    async updateUser(req: Request, res: Response): Promise<void> {
         try {
             const { id } = req.params;
+            const userId = await usersService.getUserById(Number(id));
+            if (!userId) {
+                res.status(404).json({ message: "User not found" });
+                return 
+            }
             const updatedFields = req.body;
-            const success = await usersService.updateUser(Number(id), updatedFields);
+            const result = await usersService.updateUser(Number(id), updatedFields);
 
-            if (success) {
+            if (result) {
                 res.status(200).json({ message: `User ${id} updated successfully` });
             } else {
                 res.status(400).json({ message: `Failed to update user ${id}` });
@@ -139,6 +149,16 @@ class UsersController {
             res.status(500).json({ message: "Error updating user" });
         }
     }
+
+    async searchUsers(req: Request, res: Response){
+            try{
+                const {keyword} = req.query;
+                const result = await usersService.searchUser(String(keyword));
+                res.status(200).json(result);
+            }catch(err){
+                res.status(500).json({ message: "Internal Server Error", error: err });
+            }
+        }
     
 }
 export const usersController = new UsersController();

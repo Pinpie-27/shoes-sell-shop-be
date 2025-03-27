@@ -65,6 +65,14 @@ export interface User {
         return result.affectedRows > 0;
     }
 
+    async searchByUserName(username: string) {
+            const [reviews] = await db.query<User[] & RowDataPacket[]>(
+                'SELECT * FROM users WHERE username LIKE?',
+                [`%${username}%`]
+            );
+            return reviews;
+}
+
 }
 
 export const usersModel = new UsersModel()

@@ -11,6 +11,7 @@ router.get('/user/:id', usersController.getUserById);
 router.put('/update/:id',authMiddleware.verifyTokenAndAdminAuth, usersController.updateUser);
 router.delete('/delete/:id',authMiddleware.verifyTokenAndAdminAuth, usersController.deleteUser);
 router.post('/register', usersController.registerUser);
+router.get('/search/user', usersController.searchUsers);
 
 export const routers = (app : Router) => {
     app.use('/api', router)
