@@ -7,9 +7,11 @@ export interface Product {
     description: string;
     price: number;
     stock: number;
+    style: string;
+    size: string;
     category_id: number;
     created_at: string;
-    image_url: string;
+    updated_url: string;
 }
 
 class ProductsModel {
@@ -25,12 +27,12 @@ class ProductsModel {
     }
 
     async createProduct(newProduct: Partial<Product>): Promise<number> {
-        const { name, description, price, stock, category_id, image_url } = newProduct;
+        const { name, description, price, stock,style, size, category_id } = newProduct;
     
         const [result] = await db.query(
-            `INSERT INTO products (name, description, price, stock, category_id, image_url, created_at) 
-             VALUES (?, ?, ?, ?, ?, ?, NOW())`,
-            [name, description, price, stock, category_id, image_url]
+            `INSERT INTO products (name, description, price, stock, style, size, category_id, created_at, updated_at) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+            [name, description, price, stock, style, size, category_id]
         );
     
         return (result as ResultSetHeader & { insertId: number }).insertId;

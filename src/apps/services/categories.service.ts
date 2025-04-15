@@ -3,7 +3,7 @@ import { categoriesModel } from "../models/categories.model";
 export interface Category {
     id: number;
     name: string;
-    quantity: number;
+    description: string;
 }
 
 class CategoriesService {
