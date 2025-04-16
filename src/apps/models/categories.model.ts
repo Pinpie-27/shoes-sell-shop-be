@@ -4,7 +4,7 @@ import { db } from "../../config/db";
 export interface Category {
     id: number;
     name: string;
-    quantity: number;
+    description: string;
 }
 
 class CategoriesModel {
@@ -18,12 +18,12 @@ class CategoriesModel {
     }
 
     async createCategory(newCategory: Partial<Category>): Promise<number> {
-        const { name, quantity } = newCategory;
+        const { name, description } = newCategory;
     
         const [result] = await db.query(
-            `INSERT INTO categories (name, quantity) 
+            `INSERT INTO categories (name, description) 
              VALUES (?, ?)`,
-            [name, quantity]
+            [name, description]
         );
     
         return (result as ResultSetHeader & { insertId: number }).insertId;
