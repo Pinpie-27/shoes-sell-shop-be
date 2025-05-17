@@ -16,18 +16,6 @@ class InventoryService {
   async getAllInventory() {
     return await inventoryModel.getAllInventory();
   }
-  async createInventory(newInventory: Partial<Inventory>): Promise<number> {
-    return await inventoryModel.createInventory(newInventory);
-  }
-  async updateInventory(
-    id: number,
-    updatedFields: Partial<Inventory>
-  ): Promise<boolean> { 
-    return await inventoryModel.updateInventory(id, updatedFields);
-  }
-  async deleteInventory(id: number): Promise<boolean> {
-    return await inventoryModel.deleteInventory(id);
-  }
 }
 
-export const inventoryService = new InventoryService()
+export const inventoryService = new InventoryService();
