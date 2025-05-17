@@ -5,6 +5,7 @@ export interface ColorVariant {
   id: number;
   color_id: number;
   variant_name: string;
+  color_code: string;
 }
 
 class ColorVariantModel {
@@ -21,12 +22,14 @@ class ColorVariantModel {
     );
     return colorVariants;
   }
-  async createColorVariant(newColorVariant: Partial<ColorVariant>): Promise<number> {
-    const { color_id, variant_name } = newColorVariant;
+  async createColorVariant(
+    newColorVariant: Partial<ColorVariant>
+  ): Promise<number> {
+    const { color_id, variant_name, color_code } = newColorVariant;
     const [result] = await db.query(
-      `INSERT INTO  color_variants (color_id, variant_name)
-      VALUES (?, ?)`,
-      [color_id, variant_name]
+      `INSERT INTO  color_variants (color_id, variant_name, color_code)
+      VALUES (?, ?, ?)`,
+      [color_id, variant_name, color_code]
     );
     return (result as ResultSetHeader & { insertId: number }).insertId;
   }

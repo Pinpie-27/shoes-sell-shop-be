@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import express, { Request, Response } from 'express';
+import express, { Request, Response } from "express";
 // import { routers } from './apps/routes/users.route';
 import usersRouter from "./apps/routes/users.route";
 import productsRouter from "./apps/routes/products.route";
@@ -14,12 +14,14 @@ import cartItemsRouter from "./apps/routes/cart_items.route";
 import ordersRouter from "./apps/routes/orders.route";
 import orderItemsRouter from "./apps/routes/order_items.route";
 import productColorsRouter from "./apps/routes/product_colors.route";
-
-
+import stylesRouter from "./apps/routes/styles.route";
+import suppliersRouter from "./apps/routes/suppliers.route";
+import importReceiptsRouter from "./apps/routes/import_receipts.route";
+import importReceiptItemsRouter from "./apps/routes/import_receipt_items.route";
 
 dotenv.config();
-const cors = require('cors')
-const cookieParser = require('cookie-parser');
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 const port = 3000;
@@ -27,7 +29,7 @@ const port = 3000;
 // to prevent miss
 app.use(cors());
 // to create and assign cookies
-app.use(cookieParser());  
+app.use(cookieParser());
 // transfer Request and Response to json
 app.use(express.json());
 
@@ -49,17 +51,17 @@ app.use("/api", ordersRouter);
 
 app.use("/api", orderItemsRouter);
 app.use("/api", productColorsRouter);
+app.use("/api", stylesRouter);
+app.use("/api", suppliersRouter);
+app.use("/api", importReceiptsRouter);
+app.use("/api", importReceiptItemsRouter);
 
-
-
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, Backend is available');
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello, Backend is available");
 });
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
 
-// JSON WEB TOKEN 
-
-
+// JSON WEB TOKEN

@@ -2,90 +2,83 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { db } from "../../config/db";
 
 export interface Order {
-  id: number;
   user_id: number;
-  status: "Pending" | "Shipped" | "Delivered" | "Cancelled";
+  status: string;
   total_price: number;
   created_at: string;
 }
 
-export interface Cart_Items {
-    id: number;
-    user_id: number;
-    product_id: number;
-    quantity: number;
-    price: number;
-    created_at: string;
-}
-
 class OrdersModel {
-    async createOrderFromCart(user_id: number): Promise<number> {
-        const [cartItems] = await db.query<Cart_Items[] & RowDataPacket[]>(
-            `SELECT * FROM cart_items WHERE user_id = ?`, [user_id]
-        );
-    
-        if (cartItems.length === 0) throw new Error("Cart is empty.");
+  async createOrderWithItems(user_id: number): Promise<number> {
+    const connection = await db.getConnection();
+    await connection.beginTransaction();
 
-        const total_price = cartItems.reduce((sum, item) => {
-            console.log(`Item ID: ${item.id}, Price: ${item.price}`);
-            return sum + Number(item.price);
-        }, 0);
-        
-        const [orderResult] = await db.query<ResultSetHeader>(`
-            INSERT INTO orders (user_id, status, total_price, created_at)
-            VALUES (?, 'Pending', ?, NOW())`, [user_id, total_price]
+    try {
+      const [cartItems] = await connection.query<RowDataPacket[]>(
+        `SELECT * FROM cart_items WHERE user_id = ?`,
+        [user_id]
+      );
+
+      if (cartItems.length === 0) {
+        throw new Error("Giỏ hàng trống.");
+      }
+
+      const total_price = cartItems.reduce(
+        (sum, item: any) => sum + item.price * item.quantity,
+        0
+      );
+
+      const [orderResult] = await connection.query<ResultSetHeader>(
+        `INSERT INTO orders (user_id, status, total_price, created_at)
+         VALUES (?, 'Pending', ?, NOW())`,
+        [user_id, total_price]
+      );
+      const orderId = orderResult.insertId;
+      for (const item of cartItems) {
+        const { product_id, quantity, price, size } = item;
+        await connection.query(
+          `INSERT INTO order_items (order_id, product_id, quantity, price)
+           VALUES (?, ?, ?, ?)`,
+          [orderId, product_id, quantity, price]
         );
-    
-        const orderId = (orderResult as ResultSetHeader & { insertId: number }).insertId;
-    
-        // Insert order items into order_items table
-        for (const item of cartItems) {
-            await db.query(
-                `INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)`,
-                [orderId, item.product_id, item.quantity, item.price]
-            );
+        const [invRows] = await connection.query<RowDataPacket[]>(
+          `SELECT quantity FROM inventory WHERE product_id = ? AND size = ?`,
+          [product_id, size]
+        );
+
+        if (invRows.length === 0) {
+          throw new Error(
+            `Không tìm thấy sản phẩm ${product_id} size ${size} trong kho.`
+          );
         }
-    
-        // Clear the cart after the order is created
-        await db.query(`DELETE FROM cart_items WHERE user_id = ?`, [user_id]);
-    
-        return orderId;
-    }
-    
-    
-    async getOrdersByUserId(user_id: number): Promise<Order[]> {
-        const [orders] = await db.query<Order[] & RowDataPacket[]>(
-            `SELECT * FROM orders WHERE user_id = ?`, [user_id]
-        );
-        return orders;
-    }
 
-    async getAllOrders(){
-        const [orders] = await db.query<Order[] & RowDataPacket[]>(
-            `SELECT * FROM orders`
-        );
-        return orders;
-    }
-    async updateOrderStatus(id: number, status: string) : Promise<boolean> {
-        const [result] = await db.query<ResultSetHeader>(
-            `UPDATE orders SET status = ? WHERE id = ?`,
-            [status, id]
+        const currentQty = invRows[0].quantity;
+        if (currentQty < quantity) {
+          throw new Error(
+            `Không đủ số lượng tồn kho cho sản phẩm ${product_id} size ${size}.`
           );
-          return result.affectedRows > 0;
-    }
-    async deleteOrder(id: number) : Promise<boolean> {
-        const [result] = await db.query<ResultSetHeader>(
-            `DELETE FROM orders WHERE id = ?`,
-            [id]
-          );
-          return result.affectedRows > 0;
-    }
+        }
 
-    async getOrderById(id: number): Promise<Order | null> {
-        const [order] = await db.query<Order[] & RowDataPacket[]>(
-            `SELECT * FROM orders WHERE id = ?`, [id]
+        await connection.query(
+          `UPDATE inventory SET quantity = quantity - ? WHERE product_id = ? AND size = ?`,
+          [quantity, product_id, size]
         );
-        return order[0];
+      }
+
+      await connection.query(`DELETE FROM cart_items WHERE user_id = ?`, [
+        user_id,
+      ]);
+
+      await connection.commit();
+      connection.release();
+
+      return orderId;
+    } catch (err) {
+      await connection.rollback();
+      connection.release();
+      throw err;
     }
+  }
 }
+
 export const ordersModel = new OrdersModel();
