@@ -13,6 +13,9 @@ class InventoryService {
   async getInventoryById(id: number) {
     return await inventoryModel.findById(id);
   }
+  async getAllInventoryGroupBy() {
+    return await inventoryModel.getAllInventoryGroupBy();
+  }
   async getAllInventory() {
     return await inventoryModel.getAllInventory();
   }
