@@ -30,11 +30,8 @@ class ImportReceiptItemsService {
   async deleteItem(id: number) {
     return await importReceiptItemsModel.deleteItem(id);
   }
-  async getItemsByReceiptId(receiptId: number) {
-    return await importReceiptItemsModel.findByImportReceiptId(receiptId);
-  }
-  async getItemsByProductId(productId: number) {
-    return await importReceiptItemsModel.findByProductId(productId);
+  async searchItemsByReceiptOrProduct(searchTerm: number) {
+    return await importReceiptItemsModel.findByReceiptOrProductId(searchTerm);
   }
 }
 export const importReceiptItemsService = new ImportReceiptItemsService();

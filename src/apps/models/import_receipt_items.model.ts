@@ -28,20 +28,14 @@ class ImportReceiptItemsModel {
   }
 
   async createItem(newItem: Partial<ImportReceiptItem>): Promise<number> {
-    const {
-      import_receipt_id,
-      product_id,
-      size,
-      quantity,
-      price_import,
-      created_at,
-    } = newItem;
+    const { import_receipt_id, product_id, size, quantity, price_import } =
+      newItem;
     const selling_price = price_import! * 1.3;
 
     const [result] = await db.query(
       `INSERT INTO import_receipt_items (import_receipt_id, product_id, size, quantity, price_import, created_at) 
        VALUES (?, ?, ?, ?, ?, NOW())`,
-      [import_receipt_id, product_id, size, quantity, price_import, created_at]
+      [import_receipt_id, product_id, size, quantity, price_import]
     );
     await db.query(
       `INSERT INTO inventory (product_id, size, quantity, selling_price, created_at)
@@ -109,18 +103,10 @@ class ImportReceiptItemsModel {
     return result.affectedRows > 0;
   }
 
-  async findByImportReceiptId(import_receipt_id: number) {
+  async findByReceiptOrProductId(searchTerm: number) {
     const [items] = await db.query<ImportReceiptItem[] & RowDataPacket[]>(
-      "SELECT * FROM import_receipt_items WHERE import_receipt_id = ?",
-      [import_receipt_id]
-    );
-    return items;
-  }
-
-  async findByProductId(product_id: number) {
-    const [items] = await db.query<ImportReceiptItem[] & RowDataPacket[]>(
-      "SELECT * FROM import_receipt_items WHERE product_id = ?",
-      [product_id]
+      `SELECT * FROM import_receipt_items WHERE import_receipt_id = ? OR product_id = ?`,
+      [searchTerm, searchTerm]
     );
     return items;
   }

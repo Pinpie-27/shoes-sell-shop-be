@@ -79,32 +79,16 @@ class ImportReceiptItemsController {
       res.status(500).json({ message: "Internal Server Error", error: err });
     }
   }
-  async getItemsByReceiptId(req: Request, res: Response) {
+  async searchItems(req: Request, res: Response): Promise<void> {
     try {
-      const { receiptId } = req.params;
-      const result = await importReceiptItemsService.getItemsByReceiptId(
-        Number(receiptId)
-      );
-      if (result) {
-        res.status(200).json(result);
-      } else {
-        res.status(404).json({ message: "No items found for this receipt" });
+      const search = Number(req.params.search);
+      if (isNaN(search)) {
+        res.status(400).json({ message: "Invalid search parameter" });
       }
-    } catch (err) {
-      res.status(500).json({ message: "Internal Server Error", error: err });
-    }
-  }
-  async getItemsByProductId(req: Request, res: Response) {
-    try {
-      const { productId } = req.params;
-      const result = await importReceiptItemsService.getItemsByProductId(
-        Number(productId)
-      );
-      if (result) {
-        res.status(200).json(result);
-      } else {
-        res.status(404).json({ message: "No items found for this product" });
-      }
+
+      const result =
+        await importReceiptItemsService.searchItemsByReceiptOrProduct(search);
+      res.status(200).json(result);
     } catch (err) {
       res.status(500).json({ message: "Internal Server Error", error: err });
     }

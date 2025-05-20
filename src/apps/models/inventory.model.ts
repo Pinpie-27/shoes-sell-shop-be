@@ -17,6 +17,13 @@ class InventoryModel {
     );
     return inventory[0];
   }
+  async getAllInventoryGroupBy() {
+    const [inventory] = await db.query<Inventory[] & RowDataPacket[]>(
+      "SELECT * FROM inventory GROUP BY product_id"
+    );
+    return inventory;
+  }
+
   async getAllInventory() {
     const [inventory] = await db.query<Inventory[] & RowDataPacket[]>(
       "SELECT * FROM inventory"

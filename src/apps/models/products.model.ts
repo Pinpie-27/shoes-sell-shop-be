@@ -21,35 +21,8 @@ class ProductsModel {
   }
 
   async getAllProducts() {
-    const [rows] = await db.query<RowDataPacket[]>(
-      `SELECT 
-      p.*, 
-      pc.id AS product_color_id,
-      pc.color_variant_id,
-      cv.variant_name
-    FROM products p
-    LEFT JOIN product_colors pc ON p.id = pc.product_id
-    LEFT JOIN color_variants cv ON pc.color_variant_id = cv.id`
-    );
-
-    const productsMap: Record<number, any> = {};
-
-    for (const row of rows) {
-      const productId = row.id;
-
-      if (!productsMap[productId]) {
-        productsMap[productId] = {
-          ...row,
-          colors: [],
-        };
-      }
-
-      if (row.variant_name) {
-        productsMap[productId].colors.push(row.variant_name);
-      }
-    }
-
-    return Object.values(productsMap);
+    const [rows] = await db.query<RowDataPacket[]>(`SELECT * FROM products`);
+    return rows;
   }
 
   async createProduct(newProduct: Partial<Product>): Promise<number> {

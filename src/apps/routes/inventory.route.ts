@@ -5,8 +5,8 @@ import { inventoryController } from "../controllers/inventory.controller";
 const router = express.Router();
 
 router.get("/inventory/:id", inventoryController.getInventoryById);
+router.get("/inventories/group", inventoryController.getAllInventoryGroupBy);
 router.get("/inventories", inventoryController.getAllInventory);
-
 export const routers = (app: Router) => {
   app.use("/api", router);
 };

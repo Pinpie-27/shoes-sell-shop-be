@@ -2,77 +2,103 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { db } from "../../config/db";
 
 export interface User {
-    id: number;
-    username: string;
-    email: string;
-    password: string;
-    phone: string;
-    address: string;
-    vip_level_id: number;
-    created_at: string; 
-    role: string;
+  id: number;
+  username: string;
+  email: string;
+  password: string;
+  phone: string;
+  address: string;
+  vip_level_id: number;
+  created_at: string;
+  role: string;
+}
+
+class UsersModel {
+  async findById(id: number): Promise<User> {
+    const [users] = await db.query<User[] & RowDataPacket[]>(
+      "SELECT * FROM users WHERE id = ?",
+      [id]
+    );
+    return users[0];
   }
-  
-  class UsersModel {
-    async findById(id:number) : Promise<User>{
-        const [users] = await db.query<User[] & RowDataPacket[]>('SELECT * FROM users WHERE id = ?', [id]);
-        return users[0] 
+
+  async findByUserName(username: string) {
+    if (!username) {
+      throw new Error("Username must be provided.");
     }
 
-    async findByUserName(username: string) {
-        if (!username) {
-            throw new Error("Username must be provided.");
-        }
+    const query = `SELECT * FROM users WHERE username = ? LIMIT 1`;
+    const [rows]: any = await db.execute(query, [username]);
 
-        const query = `SELECT * FROM users WHERE username = ? LIMIT 1`;
-        const [rows]: any = await db.execute(query, [username]);
+    return rows.length > 0 ? rows[0] : null;
+  }
 
-        return rows.length > 0 ? rows[0] : null;
-    }
+  async getAllUsers() {
+    const [users] = await db.query<User[] & RowDataPacket[]>(
+      "SELECT * FROM users"
+    );
+    return users;
+  }
 
+  async createUser(newUser: Partial<User>): Promise<number> {
+    const { username, email, password, phone, address, vip_level_id, role } =
+      newUser;
 
-    async getAllUsers() {
-        const [users] = await db.query<User[] & RowDataPacket[]>('SELECT * FROM users');
-        return users
-    }
-    
-    async createUser(newUser: Partial<User>): Promise<number> {
-        const { username, email, password, phone, address, vip_level_id, role } = newUser;
-    
-        const [result] = await db.query<ResultSetHeader>(
-            `INSERT INTO users (username, email, password, phone, address, vip_level_id, role, created_at) 
+    const [result] = await db.query<ResultSetHeader>(
+      `INSERT INTO users (username, email, password, phone, address, vip_level_id, role, created_at) 
              VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
-            [username, email, password, phone, address, vip_level_id || 1, role || "user"]
-        );
-    
-        return result.insertId;
-    }
+      [
+        username,
+        email,
+        password,
+        phone,
+        address,
+        vip_level_id || 1,
+        role || "user",
+      ]
+    );
 
-    async deleteUser(id: number): Promise<boolean> {
-        const [result] = await db.query<ResultSetHeader>('DELETE FROM users WHERE id = ?', [id]);
-        return result.affectedRows > 0;
-    }
+    return result.insertId;
+  }
 
-    async updateUser(id: number, updatedFields: Partial<User>): Promise<boolean> {
-        const fields = Object.keys(updatedFields).map(field => `${field} = ?`).join(', ');
-        const values = Object.values(updatedFields);
-        values.push(id);
+  async deleteUser(id: number): Promise<boolean> {
+    const [result] = await db.query<ResultSetHeader>(
+      "DELETE FROM users WHERE id = ?",
+      [id]
+    );
+    return result.affectedRows > 0;
+  }
 
-        const [result] = await db.query<ResultSetHeader>(
-            `UPDATE users SET ${fields} WHERE id = ?`, values
-        );
+  async updateUser(id: number, updatedFields: Partial<User>): Promise<boolean> {
+    const fields = Object.keys(updatedFields)
+      .map((field) => `${field} = ?`)
+      .join(", ");
+    const values = Object.values(updatedFields);
+    values.push(id);
 
-        return result.affectedRows > 0;
-    }
+    const [result] = await db.query<ResultSetHeader>(
+      `UPDATE users SET ${fields} WHERE id = ?`,
+      values
+    );
 
-    async searchByUserName(username: string) {
-            const [reviews] = await db.query<User[] & RowDataPacket[]>(
-                'SELECT * FROM users WHERE username LIKE?',
-                [`%${username}%`]
-            );
-            return reviews;
+    return result.affectedRows > 0;
+  }
+
+  async searchByUserName(username: string) {
+    const [reviews] = await db.query<User[] & RowDataPacket[]>(
+      "SELECT * FROM users WHERE username LIKE?",
+      [`%${username}%`]
+    );
+    return reviews;
+  }
+  async findUserIdByUsername(username: string): Promise<number | null> {
+    const [users] = await db.query<{ id: number }[] & RowDataPacket[]>(
+      "SELECT id FROM users WHERE username = ?",
+      [username]
+    );
+    if (users.length === 0) return null;
+    return users[0].id;
+  }
 }
 
-}
-
-export const usersModel = new UsersModel()
+export const usersModel = new UsersModel();

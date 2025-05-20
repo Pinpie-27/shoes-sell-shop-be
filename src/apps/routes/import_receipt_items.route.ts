@@ -15,13 +15,10 @@ router.delete(
   importReceiptItemsController.deleteItem
 );
 router.get(
-  "/import-receipt-items/receipt/:receiptId",
-  importReceiptItemsController.getItemsByReceiptId
+  "/import-receipt-items/search/:search",
+  importReceiptItemsController.searchItems
 );
-router.get(
-  "/import-receipt-items/product/:productId",
-  importReceiptItemsController.getItemsByProductId
-);
+
 export const routers = (app: Router) => {
   app.use("/api", router);
 };
