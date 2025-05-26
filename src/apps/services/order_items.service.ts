@@ -18,8 +18,18 @@ export interface Order_Items {
 }
 
 class OrderItemsService {
-  async getOrderDetailsByOrderId(order_id: number) {
-    return await orderItemsModel.getOrderDetails(order_id);
+  async getOrderDetailsByUserId(user_id: number) {
+    return await orderItemsModel.getOrderDetailsByUserId(user_id);
+  }
+
+  async getAllOrderItems() {
+    return await orderItemsModel.getAllOrderItems();
+  }
+  async updateStatus(
+    id: number,
+    status: "pending" | "shipped" | "delivered" | "cancelled"
+  ) {
+    return await orderItemsModel.updateStatus(id, status);
   }
 }
 export const orderItemsService = new OrderItemsService();

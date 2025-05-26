@@ -3,7 +3,6 @@ import { db } from "../../config/db";
 
 export interface Order {
   user_id: number;
-  status: string;
   total_price: number;
   created_at: string;
 }
@@ -24,21 +23,21 @@ class OrdersModel {
       }
 
       const total_price = cartItems.reduce(
-        (sum, item: any) => sum + item.price * item.quantity,
+        (sum, item: any) => sum + item.price,
         0
       );
 
       const [orderResult] = await connection.query<ResultSetHeader>(
-        `INSERT INTO orders (user_id, status, total_price, created_at)
-         VALUES (?, 'Pending', ?, NOW())`,
+        `INSERT INTO orders (user_id , total_price, created_at)
+         VALUES (? , ?, NOW())`,
         [user_id, total_price]
       );
       const orderId = orderResult.insertId;
       for (const item of cartItems) {
         const { product_id, quantity, price, size } = item;
         await connection.query(
-          `INSERT INTO order_items (order_id, product_id, quantity, price)
-           VALUES (?, ?, ?, ?)`,
+          `INSERT INTO order_items (order_id, product_id, quantity, price, status)
+           VALUES (?, ?, ?, ?, 'Pending')`,
           [orderId, product_id, quantity, price]
         );
         const [invRows] = await connection.query<RowDataPacket[]>(
