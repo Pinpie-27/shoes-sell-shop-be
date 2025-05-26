@@ -45,12 +45,20 @@ class CartItemsModel {
 
       return existingItem.id;
     } else {
+      const totalPrice = quantity * sellingPrice;
       const [insertResult] = await db.query<ResultSetHeader>(
         `INSERT INTO cart_items (user_id, product_id, quantity, price, size) VALUES (?, ?, ?, ?, ?)`,
-        [user_id, product_id, quantity, sellingPrice, size]
+        [user_id, product_id, quantity, totalPrice, size]
       );
       return insertResult.insertId;
     }
+  }
+
+  async getAllCartItems() {
+    const [cartItems] = await db.query<CartItem[] & RowDataPacket[]>(
+      "SELECT * FROM cart_items"
+    );
+    return cartItems;
   }
 
   async getCartItemsByUserId(user_id: number): Promise<any[]> {
@@ -62,6 +70,38 @@ class CartItemsModel {
       [user_id]
     );
     return items;
+  }
+
+  async deleteCartItem(id: number): Promise<boolean> {
+    const [result] = await db.query<ResultSetHeader>(
+      "DELETE FROM cart_items WHERE id = ?",
+      [id]
+    );
+    return result.affectedRows > 0;
+  }
+  async updateCartItemQuantity(id: number, newQuantity: number): Promise<void> {
+    const [cartRows] = await db.query<RowDataPacket[]>(
+      `SELECT * FROM cart_items WHERE id = ?`,
+      [id]
+    );
+
+    const cartItem = cartRows[0];
+
+    const [inventoryRows] = await db.query<RowDataPacket[]>(
+      `SELECT * FROM inventory WHERE product_id = ? AND size = ?`,
+      [cartItem.product_id, cartItem.size]
+    );
+
+    if (inventoryRows.length === 0 || inventoryRows[0].quantity < newQuantity) {
+      throw new Error("Not enough quantity.");
+    }
+
+    const newPrice = newQuantity * inventoryRows[0].selling_price;
+
+    await db.query(
+      `UPDATE cart_items SET quantity = ?, price = ? WHERE id = ?`,
+      [newQuantity, newPrice, id]
+    );
   }
 }
 

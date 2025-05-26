@@ -14,17 +14,39 @@ export interface Order_Items {
   product_id: number;
   quantity: number;
   price: number;
-  total_price: number;
   created_at: string;
 }
 
 class OrderItemsModel {
-  async getOrderDetails(order_id: number) {
-    const [orderDetails] = await db.query<Order[] & RowDataPacket[]>(
-      `SELECT * FROM order_items WHERE order_id = ?`,
-      [order_id]
+  async getOrderDetailsByUserId(user_id: number) {
+    const [orderDetails] = await db.query<RowDataPacket[]>(
+      `
+    SELECT oi.* 
+    FROM order_items oi
+    JOIN orders o ON oi.order_id = o.id
+    WHERE o.user_id = ?
+    `,
+      [user_id]
     );
     return orderDetails;
+  }
+
+  async getAllOrderItems() {
+    const [orderItems] = await db.query<Order_Items[] & RowDataPacket[]>(
+      "SELECT * FROM order_items"
+    );
+    return orderItems;
+  }
+
+  async updateStatus(
+    id: number,
+    status: "pending" | "shipped" | "delivered" | "cancelled"
+  ) {
+    const [result] = await db.query<ResultSetHeader>(
+      `UPDATE order_items SET status = ? WHERE id = ?`,
+      [status, id]
+    );
+    return result;
   }
 }
 
