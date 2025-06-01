@@ -20,8 +20,7 @@ router.delete(
 );
 router.post("/register", usersController.registerUser);
 router.get("/search/user", usersController.searchUsers);
-router.get("/get-id/:username", usersController.getUserIdByUsername);
-
+router.get("/user/username/:username", usersController.getUserByUsername);
 export const routers = (app: Router) => {
   app.use("/api", router);
 };

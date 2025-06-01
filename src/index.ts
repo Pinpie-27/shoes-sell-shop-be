@@ -18,7 +18,7 @@ import stylesRouter from "./apps/routes/styles.route";
 import suppliersRouter from "./apps/routes/suppliers.route";
 import importReceiptsRouter from "./apps/routes/import_receipts.route";
 import importReceiptItemsRouter from "./apps/routes/import_receipt_items.route";
-
+import vppaRoutes from "./apps/routes/paymentRoute";
 dotenv.config();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -55,6 +55,8 @@ app.use("/api", stylesRouter);
 app.use("/api", suppliersRouter);
 app.use("/api", importReceiptsRouter);
 app.use("/api", importReceiptItemsRouter);
+
+app.use("/api/", vppaRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, Backend is available");

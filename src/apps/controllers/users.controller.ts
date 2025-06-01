@@ -162,20 +162,20 @@ class UsersController {
     }
   }
 
-  async getUserIdByUsername(req: Request, res: Response) {
+  async getUserByUsername(req: Request, res: Response): Promise<void> {
     try {
-      const { username } = req.query;
+      const { username } = req.params;
+
       if (!username || typeof username !== "string") {
         res.status(400).json({ message: "Username is required" });
-        return;
       }
 
-      const userId = await usersService.getUserIdByUsername(username);
-      if (userId === null) {
+      const user = await usersService.getUserByUsername(username);
+      if (!user) {
         res.status(404).json({ message: "User not found" });
-      } else {
-        res.status(200).json({ userId });
       }
+
+      res.status(200).json(user);
     } catch (err) {
       res.status(500).json({ message: "Internal Server Error", error: err });
     }
