@@ -91,13 +91,13 @@ class UsersModel {
     );
     return reviews;
   }
-  async findUserIdByUsername(username: string): Promise<number | null> {
-    const [users] = await db.query<{ id: number }[] & RowDataPacket[]>(
-      "SELECT id FROM users WHERE username = ?",
+  async findUserByUsername(username: string): Promise<User | null> {
+    const [users] = await db.query<User[] & RowDataPacket[]>(
+      "SELECT * FROM users WHERE username = ?",
       [username]
     );
     if (users.length === 0) return null;
-    return users[0].id;
+    return users[0];
   }
 }
 

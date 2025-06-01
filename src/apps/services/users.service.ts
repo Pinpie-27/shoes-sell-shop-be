@@ -1,16 +1,6 @@
 import { usersModel } from "../models/users.model";
 
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  password_hash: string;
-  phone: string;
-  address: string;
-  vip_level_id: number;
-  created_at: string;
-  role: string;
-}
+import type { User } from "../models/users.model";
 const bcrypt = require("bcrypt");
 class UsersService {
   async loginUser(username: string, password: string) {
@@ -46,8 +36,8 @@ class UsersService {
   async searchUser(keyword: string) {
     return await usersModel.searchByUserName(keyword);
   }
-  async getUserIdByUsername(username: string): Promise<number | null> {
-    return await usersModel.findUserIdByUsername(username);
+  async getUserByUsername(username: string): Promise<User | null> {
+    return await usersModel.findUserByUsername(username);
   }
 }
 
