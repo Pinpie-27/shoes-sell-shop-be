@@ -6,7 +6,9 @@ import { authMiddleware } from "../controllers/authMiddleware";
 const router = express.Router();
 
 router.post("/login", usersController.loginUser);
-router.get("/users", authMiddleware.verifyToken, usersController.getAllUsers);
+// router.get("/users", authMiddleware.verifyToken, usersController.getAllUsers);
+router.get("/users", usersController.getAllUsers);
+
 router.get("/user/:id", usersController.getUserById);
 router.put(
   "/update/:id",
