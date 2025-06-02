@@ -53,7 +53,7 @@ class UsersModel {
         password,
         phone,
         address,
-        vip_level_id || 1,
+        vip_level_id || 5,
         role || "user",
       ]
     );

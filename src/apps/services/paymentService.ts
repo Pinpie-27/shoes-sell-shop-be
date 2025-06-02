@@ -1,7 +1,7 @@
 import qs from "qs";
 import crypto from "crypto";
 import { vnpConfig } from "../utils/vnpay";
-import moment from "moment";
+// import moment from "moment";
 
 function sortObject(obj: any): Record<string, any> {
   const sorted: Record<string, any> = {};
@@ -20,7 +20,7 @@ export const createPaymentUrl = (
   bankCode = "",
   locale = "vn"
 ): string => {
-  const createDate = moment().format("YYYYMMDDHHmmss");
+  // const createDate = moment().format("YYYYMMDDHHmmss");
 
   let vnp_Params: Record<string, any> = {
     vnp_Version: "2.1.0",
@@ -34,7 +34,7 @@ export const createPaymentUrl = (
     vnp_Amount: amount * 100, // VND * 100
     vnp_ReturnUrl: vnpConfig.returnUrl,
     vnp_IpAddr: ipAddr,
-    vnp_CreateDate: createDate,
+    // vnp_CreateDate: createDate,
   };
 
   if (bankCode) {
