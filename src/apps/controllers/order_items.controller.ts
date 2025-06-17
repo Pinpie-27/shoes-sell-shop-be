@@ -46,5 +46,24 @@ class OrderItemsController {
       res.status(500).json({ message: "Internal Server Error", error: err });
     }
   }
+  async findById(req: Request, res: Response) {
+    try {
+      const id = req.params.id;
+
+      if (!id) {
+        res.status(400).json({ message: "Bad Request: Missing ID" });
+        return;
+      }
+
+      const result = await orderItemsService.findById(Number(id));
+      if (result) {
+        res.status(200).json(result);
+      } else {
+        res.status(404).json({ message: "Not Found" });
+      }
+    } catch (err) {
+      res.status(500).json({ message: "Internal Server Error", error: err });
+    }
+  }
 }
 export const orderItemsController = new OrderItemsController();

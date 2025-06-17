@@ -16,6 +16,11 @@ router.put(
   authMiddleware.verifyTokenBasic,
   orderItemsController.updateStatus
 );
+router.get(
+  "/order_item/:id",
+  authMiddleware.verifyTokenBasic,
+  orderItemsController.findById
+);
 
 export const routers = (app: Router) => {
   app.use("/api", router);

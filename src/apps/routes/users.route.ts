@@ -10,11 +10,12 @@ router.post("/login", usersController.loginUser);
 router.get("/users", usersController.getAllUsers);
 
 router.get("/user/:id", usersController.getUserById);
-router.put(
-  "/update/:id",
-  authMiddleware.verifyTokenAndAdminAuth,
-  usersController.updateUser
-);
+// router.put(
+//   "/update/:id",
+//   authMiddleware.verifyTokenAndAdminAuth,
+//   usersController.updateUser
+// );
+router.put("/update/:id", usersController.updateUser);
 router.delete(
   "/delete/:id",
   authMiddleware.verifyTokenAndAdminAuth,
