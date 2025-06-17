@@ -31,5 +31,8 @@ class OrderItemsService {
   ) {
     return await orderItemsModel.updateStatus(id, status);
   }
+  async findById(id: number) {
+    return await orderItemsModel.findById(id);
+  }
 }
 export const orderItemsService = new OrderItemsService();

@@ -20,6 +20,7 @@ import importReceiptsRouter from "./apps/routes/import_receipts.route";
 import importReceiptItemsRouter from "./apps/routes/import_receipt_items.route";
 import vppaRoutes from "./apps/routes/paymentRoute";
 import statisticsRouter from "./apps/routes/statistics.route";
+import dialogflowRoute from "./apps/routes/dialogflow.route";
 
 dotenv.config();
 const cors = require("cors");
@@ -60,6 +61,8 @@ app.use("/api", importReceiptItemsRouter);
 
 app.use("/api/", vppaRoutes);
 app.use("/api/", statisticsRouter);
+
+app.use("/api", dialogflowRoute);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, Backend is available");

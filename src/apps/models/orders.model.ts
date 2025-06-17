@@ -22,6 +22,20 @@ class OrdersModel {
       if (!items || items.length === 0) {
         throw new Error("Không có sản phẩm trong đơn hàng.");
       }
+      const [userRows] = await connection.query<RowDataPacket[]>(
+        `SELECT vip_level_id FROM users WHERE id = ?`,
+        [user_id]
+      );
+      let discountPercent = 0;
+      if (userRows.length > 0 && userRows[0].vip_level_id) {
+        const [vipRows] = await connection.query<RowDataPacket[]>(
+          `SELECT discount_rate FROM vip_levels WHERE id = ?`,
+          [userRows[0].vip_level_id]
+        );
+        if (vipRows.length > 0) {
+          discountPercent = Number(vipRows[0].discount_rate) || 0;
+        }
+      }
 
       const cartItemIds = items.map((item) => item.cart_item_id);
       const [cartItems] = await connection.query<RowDataPacket[]>(
@@ -33,10 +47,13 @@ class OrdersModel {
         throw new Error("Không tìm thấy sản phẩm trong giỏ hàng.");
       }
 
-      const total_price = cartItems.reduce(
+      const total = cartItems.reduce(
         (sum, item: any) => sum + item.price * item.quantity,
         0
       );
+      const discount = (total * discountPercent) / 100;
+      const total_price = total - discount;
+
       const [result] = await connection.query<ResultSetHeader>(
         `INSERT INTO orders 
     (user_id, total_price, created_at, receiver_name, receiver_phone, receiver_address, note)
@@ -63,7 +80,6 @@ class OrdersModel {
           [orderId, product_id, quantity, price]
         );
 
-        // Kiểm tra tồn kho
         const [invRows] = await connection.query<RowDataPacket[]>(
           `SELECT quantity FROM inventory WHERE product_id = ? AND size = ?`,
           [product_id, size]
@@ -88,7 +104,6 @@ class OrdersModel {
         );
       }
 
-      // Thêm bản ghi thanh toán
       await connection.query(
         `INSERT INTO payments 
           (order_id, payment_method, payment_status, amount)
@@ -96,7 +111,6 @@ class OrdersModel {
         [orderId, payment_method, total_price]
       );
 
-      // Xóa các cart_items đã đặt
       await connection.query(
         `DELETE FROM cart_items WHERE id IN (?) AND user_id = ?`,
         [cartItemIds, user_id]

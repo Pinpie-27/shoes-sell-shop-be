@@ -19,6 +19,13 @@ class InventoryService {
   async getAllInventory() {
     return await inventoryModel.getAllInventory();
   }
+
+  async getAvailableSizesByProductId(product_id: number): Promise<number[]> {
+    return await inventoryModel.getAvailableSizesByProductId(product_id);
+  }
+  async getProductNameById(product_id: number): Promise<string | null> {
+    return await inventoryModel.getProductNameById(product_id);
+  }
 }
 
 export const inventoryService = new InventoryService();

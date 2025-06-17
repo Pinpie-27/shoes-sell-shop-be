@@ -21,7 +21,10 @@ class OrderItemsModel {
   async getOrderDetailsByUserId(user_id: number) {
     const [orderDetails] = await db.query<RowDataPacket[]>(
       `
-    SELECT oi.* 
+    SELECT 
+      oi.*, 
+      o.total_price, 
+      o.created_at AS order_created_at
     FROM order_items oi
     JOIN orders o ON oi.order_id = o.id
     WHERE o.user_id = ?
@@ -47,6 +50,14 @@ class OrderItemsModel {
       [status, id]
     );
     return result;
+  }
+
+  async findById(id: number): Promise<Order_Items> {
+    const [orderItems] = await db.query<Order_Items[] & RowDataPacket[]>(
+      "SELECT * FROM order_items WHERE id = ?",
+      [id]
+    );
+    return orderItems[0];
   }
 }
 
