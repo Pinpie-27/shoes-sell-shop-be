@@ -99,7 +99,7 @@ class UsersController {
             role: user.role,
           },
           process.env.JWT_ACCESS_TOKEN as string,
-          { expiresIn: "30d" }
+          { expiresIn: "1h" }
         );
         const userObject = user.toObject ? user.toObject() : user;
         const { password, ...others } = userObject;

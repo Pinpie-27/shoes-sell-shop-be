@@ -8,7 +8,7 @@ class OrdersController {
     return createOrderAndPayment(req, res);
   }
 
-  getOrderById = async (req: Request, res: Response): Promise<void> => {
+   getOrderById = async (req: Request, res: Response): Promise<void> => {
     try {
       const orderId = parseInt(req.params.id);
 

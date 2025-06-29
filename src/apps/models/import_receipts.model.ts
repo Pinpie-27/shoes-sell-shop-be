@@ -12,19 +12,27 @@ export interface ImportReceipt {
 
 class ImportReceiptsModel {
   async findById(id: number): Promise<ImportReceipt> {
-    const [importReceipts] = await db.query<ImportReceipt[] & RowDataPacket[]>(
-      "SELECT * FROM import_receipts WHERE id = ?",
+    const [importReceipts] = await db.query<RowDataPacket[]>(
+      `SELECT id, receipt_number, 
+            DATE_FORMAT(import_date, '%Y-%m-%d') AS import_date,
+            supplier_id, created_at, updated_at 
+     FROM import_receipts 
+     WHERE id = ?`,
       [id]
     );
-    return importReceipts[0];
+    return importReceipts[0] as ImportReceipt;
   }
 
   async getAllImportReceipts() {
-    const [importReceipts] = await db.query<ImportReceipt[] & RowDataPacket[]>(
-      "SELECT * FROM import_receipts"
+    const [importReceipts] = await db.query<RowDataPacket[]>(
+      `SELECT id, receipt_number, 
+            DATE_FORMAT(import_date, '%Y-%m-%d') AS import_date,
+            supplier_id, created_at, updated_at 
+     FROM import_receipts`
     );
-    return importReceipts;
+    return importReceipts as ImportReceipt[];
   }
+
   async createImportReceipt(
     newImportReceipt: Partial<ImportReceipt>
   ): Promise<number> {
@@ -65,11 +73,15 @@ class ImportReceiptsModel {
     return result.affectedRows > 0;
   }
   async findByReceiptNumber(receipt_number: string) {
-    const [importReceipts] = await db.query<ImportReceipt[] & RowDataPacket[]>(
-      "SELECT * FROM import_receipts WHERE receipt_number LIKE?",
+    const [importReceipts] = await db.query<RowDataPacket[]>(
+      `SELECT id, receipt_number, 
+            DATE_FORMAT(import_date, '%Y-%m-%d') AS import_date,
+            supplier_id, created_at, updated_at 
+     FROM import_receipts 
+     WHERE receipt_number LIKE ?`,
       [`%${receipt_number}%`]
     );
-    return importReceipts;
+    return importReceipts as ImportReceipt[];
   }
 }
 export const importReceiptsModel = new ImportReceiptsModel();

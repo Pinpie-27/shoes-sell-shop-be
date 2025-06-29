@@ -58,6 +58,23 @@ class InventoryController {
       res.status(500).json({ message: "Internal Server Error", error: err });
     }
   }
+
+  async getProductIdByName(req: Request, res: Response): Promise<any> {
+    try {
+      const { name } = req.query;
+      if (typeof name !== "string") {
+        return res.status(400).json({ message: "Invalid product name" });
+      }
+      const productId = await inventoryService.getProductIdByName(name);
+      if (productId) {
+        res.status(200).json({ product_id: productId });
+      } else {
+        res.status(404).json({ message: "Product not found" });
+      }
+    } catch (err) {
+      res.status(500).json({ message: "Internal Server Error", error: err });
+    }
+  }
 }
 
 export const inventoryController = new InventoryController();
