@@ -15,6 +15,8 @@ router.get(
   "/inventory/product-name/:product_id",
   inventoryController.getProductNameById
 );
+
+router.get("/inventory/product-id", inventoryController.getProductIdByName);
 export const routers = (app: Router) => {
   app.use("/api", router);
 };

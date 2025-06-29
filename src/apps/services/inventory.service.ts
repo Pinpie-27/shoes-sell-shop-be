@@ -26,6 +26,10 @@ class InventoryService {
   async getProductNameById(product_id: number): Promise<string | null> {
     return await inventoryModel.getProductNameById(product_id);
   }
+
+  async getProductIdByName(name: string){
+    return await inventoryModel.getProductIdByName(name);
+  }
 }
 
 export const inventoryService = new InventoryService();

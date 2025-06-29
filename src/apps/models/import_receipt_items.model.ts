@@ -11,20 +11,35 @@ export interface ImportReceiptItem {
   created_at: string;
 }
 
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("vi-VN").format(value);
+};
+
 class ImportReceiptItemsModel {
-  async findById(id: number): Promise<ImportReceiptItem> {
+  async findById(id: number): Promise<any> {
     const [items] = await db.query<ImportReceiptItem[] & RowDataPacket[]>(
       "SELECT * FROM import_receipt_items WHERE id = ?",
       [id]
     );
-    return items[0];
+
+    if (!items[0]) return null;
+
+    const item = items[0];
+    return {
+      ...item,
+      price_import: formatCurrency(item.price_import),
+    };
   }
 
-  async getAllItems() {
+  async getAllItems(): Promise<any[]> {
     const [items] = await db.query<ImportReceiptItem[] & RowDataPacket[]>(
       "SELECT * FROM import_receipt_items"
     );
-    return items;
+
+    return items.map((item) => ({
+      ...item,
+      price_import: formatCurrency(item.price_import),
+    }));
   }
 
   async createItem(newItem: Partial<ImportReceiptItem>): Promise<number> {
@@ -103,12 +118,16 @@ class ImportReceiptItemsModel {
     return result.affectedRows > 0;
   }
 
-  async findByReceiptOrProductId(searchTerm: number) {
+  async findByReceiptOrProductId(searchTerm: number): Promise<any[]> {
     const [items] = await db.query<ImportReceiptItem[] & RowDataPacket[]>(
       `SELECT * FROM import_receipt_items WHERE import_receipt_id = ? OR product_id = ?`,
       [searchTerm, searchTerm]
     );
-    return items;
+
+    return items.map((item) => ({
+      ...item,
+      price_import: formatCurrency(item.price_import),
+    }));
   }
 }
 

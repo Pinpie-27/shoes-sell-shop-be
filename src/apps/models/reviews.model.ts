@@ -65,11 +65,17 @@ class ReviewsModel {
     return result.affectedRows > 0;
   }
 
-  async findByReviewName(name: string) {
+  async findByReviewName(username: string) {
     const [reviews] = await db.query<Review[] & RowDataPacket[]>(
-      "SELECT * FROM reviews WHERE name LIKE?",
-      [`%${name}%`]
+      `
+    SELECT r.*
+    FROM reviews r
+    JOIN users u ON r.user_id = u.id
+    WHERE u.username LIKE ?
+  `,
+      [`%${username}%`]
     );
+
     return reviews;
   }
 }

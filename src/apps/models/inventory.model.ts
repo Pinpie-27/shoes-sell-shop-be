@@ -46,5 +46,13 @@ class InventoryModel {
     );
     return rows.length > 0 ? rows[0].name : null;
   }
+
+  async getProductIdByName(productName: string): Promise<number | null> {
+    const [rows] = await db.query<RowDataPacket[]>(
+      "SELECT id FROM products WHERE name = ?",
+      [productName]
+    );
+    return rows.length > 0 ? rows[0].id : null;
+  }
 }
 export const inventoryModel = new InventoryModel();

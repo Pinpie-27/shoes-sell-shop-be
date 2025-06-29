@@ -25,7 +25,8 @@ class ProductColorsController {
       res.status(500).json({ message: "Internal Server Error", error: err });
     }
   }
-  async createProductColors(req: Request, res: Response) {  
+
+  async createProductColors(req: Request, res: Response) {
     try {
       const newProductColors = req.body;
       const result = await productColorsService.createProductColors(
@@ -37,13 +38,15 @@ class ProductColorsController {
           productColor: result,
         });
       } else {
-        res.status(400).json({ message: "Failed to create product colors" });
+        res.status(400).json({
+          message: "Product color already exists or invalid data",
+        });
       }
     } catch (err) {
       res.status(500).json({ message: "Internal Server Error", error: err });
     }
   }
-  async updateProductColors(req: Request, res: Response): Promise<void> {               
+  async updateProductColors(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const productColorsId = await productColorsService.getProductColorsById(
@@ -82,7 +85,9 @@ class ProductColorsController {
       }
       const result = await productColorsService.deleteProductColors(Number(id));
       if (result) {
-        res.status(200).json({ message: "Product colors deleted successfully" });
+        res
+          .status(200)
+          .json({ message: "Product colors deleted successfully" });
       } else {
         res.status(404).json({ message: "Product colors not found" });
       }
@@ -92,9 +97,11 @@ class ProductColorsController {
   }
   async getProductColorsByProductId(req: Request, res: Response) {
     try {
-      const { product_id } = req.params;
+      const { name } = req.params;
+      console.log("name", name);
+
       const result = await productColorsService.getProductColorsByProductId(
-        Number(product_id)
+        String(name)
       );
       if (result) {
         res.status(200).json(result);
@@ -105,5 +112,5 @@ class ProductColorsController {
       res.status(500).json({ message: "Internal Server Error", error: err });
     }
   }
-}   
+}
 export const productColorsController = new ProductColorsController();
