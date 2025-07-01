@@ -11,6 +11,10 @@ export interface CartItem {
   created_at: string;
 }
 
+function formatPrice(price: number): string {
+  return price.toLocaleString("vi-VN");
+}
+
 class CartItemsModel {
   async createCartItem(newCartItem: Partial<CartItem>): Promise<number> {
     const { user_id, product_id, quantity, size } = newCartItem;
@@ -58,7 +62,10 @@ class CartItemsModel {
     const [cartItems] = await db.query<CartItem[] & RowDataPacket[]>(
       "SELECT * FROM cart_items"
     );
-    return cartItems;
+    return cartItems.map((item) => ({
+      ...item,
+      price: formatPrice(item.price),
+    }));
   }
 
   async getCartItemsByUserId(user_id: number): Promise<any[]> {
@@ -67,9 +74,12 @@ class CartItemsModel {
      FROM cart_items ci
      JOIN products p ON ci.product_id = p.id
      WHERE ci.user_id = ?`,
-      [user_id]
+      [user_id] 
     );
-    return items;
+    return items.map((item) => ({
+      ...item,
+      price: formatPrice(item.price),
+    }));
   }
 
   async deleteCartItem(id: number): Promise<boolean> {

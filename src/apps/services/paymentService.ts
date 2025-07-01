@@ -1,9 +1,11 @@
 import qs from "qs";
 import crypto from "crypto";
+import moment from "moment";
 import { vnpConfig } from "../utils/vnpay";
-// import moment from "moment";
+import { dateFormat } from "vnpay";
 
-function sortObject(obj: any): Record<string, any> {
+// Sắp xếp object theo key alphabet
+function sortObject(obj: Record<string, any>): Record<string, any> {
   const sorted: Record<string, any> = {};
   const keys = Object.keys(obj).sort();
   for (const key of keys) {
@@ -12,48 +14,50 @@ function sortObject(obj: any): Record<string, any> {
   return sorted;
 }
 
-export const createPaymentUrl = (
+// Tạo URL thanh toán VNPay với tham số động
+export function createPaymentUrl(
   orderId: string,
   amount: number,
   ipAddr: string,
-  orderInfo = "Thanh toan VNPay",
-  bankCode = "",
-  locale = "vn"
-): string => {
-  // const createDate = moment().format("YYYYMMDDHHmmss");
+  orderInfo = `${orderId}`,
+  bankCode = "NCB"
+): string {
+  const createDate = moment().format("YYYYMMDDHHmmss");
+  const expireDate = moment().add(15, "minutes").format("YYYYMMDDHHmmss");
 
-  let vnp_Params: Record<string, any> = {
-    vnp_Version: "2.1.0",
+  let vnp_Params: Record<string, string> = {
+    vnp_Amount: (amount * 100).toString(),
+    vnp_BankCode: bankCode,
     vnp_Command: "pay",
-    vnp_TmnCode: vnpConfig.tmnCode,
-    vnp_Locale: locale,
+    vnp_CreateDate: createDate,
     vnp_CurrCode: "VND",
-    vnp_TxnRef: orderId,
+    vnp_ExpireDate: expireDate,
+    vnp_IpAddr: "0:0:0:0:0:0:0:1",
+    vnp_Locale: "vn",
     vnp_OrderInfo: orderInfo,
     vnp_OrderType: "other",
-    vnp_Amount: amount * 100, // VND * 100
     vnp_ReturnUrl: vnpConfig.returnUrl,
-    vnp_IpAddr: ipAddr,
-    // vnp_CreateDate: createDate,
+    vnp_TmnCode: vnpConfig.tmnCode,
+    vnp_TxnRef: orderId,
+    vnp_Version: "2.1.0",
   };
 
   if (bankCode) {
-    vnp_Params.vnp_BankCode = bankCode;
   }
 
   vnp_Params = sortObject(vnp_Params);
-  const signData = qs.stringify(vnp_Params, { encode: false });
-  const hmac = crypto.createHmac("sha512", vnpConfig.hashSecret);
-  const signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
+  let signData = qs.stringify(vnp_Params, { encode: true });
+  console.log("SIGN DATA ON VERIFY:", signData);
 
+  let hmac = crypto.createHmac("sha512", vnpConfig.hashSecret);
+  let signed = hmac.update(Buffer.from(signData, "utf-8")).digest("hex");
   vnp_Params.vnp_SecureHash = signed;
 
-  return `${vnpConfig.url}?${qs.stringify(vnp_Params, { encode: false })}`;
-};
-
+  return `${vnpConfig.url}?${qs.stringify(vnp_Params, { encode: true })}`;
+}
+// Xác thực chữ ký VNPay
 export function verifyPayment(query: Record<string, any>): boolean {
-  const vnp_HashSecret = process.env.VNPAY_HASH_SECRET || "";
-  console.log(process.env.VNPAY_HASH_SECRET);
+  const vnp_HashSecret = vnpConfig.hashSecret;
 
   // Lấy tất cả key bắt đầu bằng vnp_, trừ vnp_SecureHash và vnp_SecureHashType
   const vnpParams: Record<string, string> = {};
@@ -77,9 +81,6 @@ export function verifyPayment(query: Record<string, any>): boolean {
     .update(signData)
     .digest("hex");
 
-  console.log("signData:", signData);
-  console.log("secureHash:", secureHash);
-  console.log("vnp_SecureHash:", query.vnp_SecureHash);
   return (
     secureHash.toUpperCase() === (query.vnp_SecureHash || "").toUpperCase()
   );
