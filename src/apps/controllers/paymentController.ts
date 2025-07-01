@@ -33,16 +33,15 @@ export const createOrderAndPayment = async (
     );
 
     if (payment_method === "VNPAY") {
-      const ipAddr =
-        req.headers["x-forwarded-for"] || req.socket.remoteAddress || "";
-      // Lấy tổng tiền từ DB để chắc chắn
+      const ipAddr = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+      // Lấy tổng tiền từ DB để chắc chắns
       const order = await ordersService.getOrderById(orderId);
       const paymentUrl = createPaymentUrl(
         orderId.toString(),
         order.total_price,
         ipAddr as string
       );
-
+      console.log("PaymentUrl: ", paymentUrl);
       // Thêm return ở đây
       return void res.status(200).json({
         message: "Redirect to VNPay",
